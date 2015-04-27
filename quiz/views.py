@@ -35,8 +35,12 @@ def score(request, question_id):
             'error_message': "You didn't select a choice.",
         })
     else:
-        selected_choice.score+= 1
-        selected_choice.save()
+        if selected_choice.is_correct:
+            selected_choice.score+= 1
+            selected_choice.save()
+        elif not selected_choice.is_correct:
+            selected_choice.score+=0
+            selected_choice.save()
         # Always return an HttpResponseRedirect after successfully dealing
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
