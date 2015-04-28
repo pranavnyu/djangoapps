@@ -11,8 +11,7 @@ class IndexView(generic.ListView):
     context_object_name = 'latest_question_list'
 
     def get_queryset(self):
-        """Return the last five published questions."""
-        return Question.objects.order_by('id')[:5]
+        return Question.objects.order_by('id')
 
 
 class DetailView(generic.DetailView):
@@ -29,20 +28,18 @@ def score(request, question_id):
     try:
         selected_choice = p.choice_set.get(pk=request.POST['choice'])
     except (KeyError, Choice.DoesNotExist):
-        # Redisplay the question voting form.
+        # Redisplay the question form.
         return render(request, 'quiz/detail.html', {
             'question': p,
             'error_message': "You didn't select a choice.",
         })
     else:
         selected_choice.score =0
+        selected_choice.save()
         if selected_choice.is_correct:
             selected_choice.score+= 1
             selected_choice.save()
         elif not selected_choice.is_correct:
             selected_choice.score+=0
             selected_choice.save()
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
         return HttpResponseRedirect(reverse('quiz:results', args=(p.id,)))
